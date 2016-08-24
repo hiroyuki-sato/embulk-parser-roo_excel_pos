@@ -1,5 +1,16 @@
+require 'roo'
+require 'embulk/parser/roo_excel_reader'
 module Embulk
   module Parser
+=begin
+    class RooColumn < Column
+      attr_accessor :position
+      def initialize(idx,name,type,format=nil,pos=nil)
+        super(idx,name,type,format)
+        @pos = pos
+      end
+    end
+=end
 
     class RooExcelPos < ParserPlugin
       Plugin.register_parser("roo_excel_pos", self)
@@ -7,38 +18,45 @@ module Embulk
       def self.transaction(config, &control)
         # configuration code:
         task = {
-          "option1" => config.param("option1", :integer),                     # integer, required
-          "option2" => config.param("option2", :string, default: "myvalue"),  # string, optional
-          "option3" => config.param("option3", :string, default: nil),        # string, optional
+          "columns" => config.param("columns", :array)
         }
 
-        columns = [
-          Column.new(0, "example", :string),
-          Column.new(1, "column", :long),
-          Column.new(2, "name", :double),
-        ]
+        columns = []
+        task['columns'].each_with_index do |c,i|
+          columns << Column.new(i, c['name'], c['type'].to_sym,c['format'])
+        end
+
 
         yield(task, columns)
       end
 
       def init
-        # initialization code:
-        @option1 = task["option1"]
-        @option2 = task["option2"]
-        @option3 = task["option3"]
+        @columns = task["columns"]
       end
 
       def run(file_input)
         while file = file_input.next_file
-          file.each do |buffer|
-            # parsering code
-            record = ["col1", 2, 3.0]
-            page_builder.add(record)
+
+          begin
+            xlsx = Roo::Excelx.new(StringIO.new(file.read))
+            xlsx.default_sheet = xlsx.sheets.first
+            excel_reader = RooExcelReader.new(xlsx)
+            row = []
+            @columns.each do |col|
+              row << excel_reader.read_cell(col)
+            end
+            @page_builder.add(row)
+          rescue ArgumentError
+            puts $!
+            puts $!.backtrace
+            puts "Can't open data file"
+          rescue
+            raise
           end
         end
         page_builder.finish
+
       end
     end
-
   end
 end

@@ -1,6 +1,6 @@
 # Roo Excel Pos parser plugin for Embulk
 
-TODO: Write short description here and embulk-parser-roo_excel_pos.gemspec file.
+Read excel data file form specific position.
 
 ## Overview
 
@@ -9,26 +9,31 @@ TODO: Write short description here and embulk-parser-roo_excel_pos.gemspec file.
 
 ## Configuration
 
-- **option1**: description (integer, required)
-- **option2**: description (string, default: `"myvalue"`)
-- **option3**: description (string, default: `null`)
+- **columns**: description (array, required)
+  - **name**: Column name (string, default: `"myvalue"`)
+  - **type**: Column type (string, `string`,`timestamp`,`long`...)
+  - **pos**: Sheet position (string, `A1`)
+  - **format**: Timestamp format
 
 ## Example
 
 ```yaml
 in:
-  type: any file input plugin type
+  type: file
+  path_prefix: example/test.xlsx
   parser:
     type: roo_excel_pos
-    option1: example1
-    option2: example2
+    columns:
+    - { name: cell_a, type: string, pos: A1 }
+    - { name: cell_b, type: string, pos: A2 }
+    - { name: cell_c, type: timestamp, pos: A6 }
+    - { name: cell_d, type: long, pos: A5 }
+    - { name: cell_e, type: double, pos: A5 }
+    - { name: cell_f, type: timestamp, pos: A7, format: "%Y/%m/%d" }
 ```
-
-(If guess supported) you don't have to write `parser:` section in the configuration file. After writing `in:` section, you can let embulk guess `parser:` section using this command:
 
 ```
 $ embulk gem install embulk-parser-roo_excel_pos
-$ embulk guess -g roo_excel_pos config.yml -o guessed.yml
 ```
 
 ## Build
