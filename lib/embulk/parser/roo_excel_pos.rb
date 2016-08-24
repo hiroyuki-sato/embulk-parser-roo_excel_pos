@@ -9,7 +9,8 @@ module Embulk
       def self.transaction(config, &control)
         # configuration code:
         task = {
-          "columns" => config.param("columns", :array)
+          "columns" => config.param("columns", :array),
+          "default_sheet_name" => config.param("default_sheet_name",:string,default: nil)
         }
 
         columns = []
@@ -31,7 +32,7 @@ module Embulk
           begin
             xlsx = Roo::Excelx.new(StringIO.new(file.read))
             xlsx.default_sheet = xlsx.sheets.first
-            excel_reader = RooExcelReader.new(xlsx)
+            excel_reader = RooExcelReader.new(xlsx,task)
             row = []
             @columns.each do |col|
               row << excel_reader.read_cell(col)

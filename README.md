@@ -9,11 +9,12 @@ Read excel data file form specific position.
 
 ## Configuration
 
-- **columns**: description (array, required)
+- **columns**: olumn definitions (array, required)
   - **name**: Column name (string, default: `"myvalue"`)
   - **type**: Column type (string, `string`,`timestamp`,`long`...)
   - **pos**: Sheet position (string, `A1`)
   - **format**: Timestamp format
+- **default_sheet_name**: default sheet name (string, optional)
 
 ## Example
 
@@ -30,6 +31,9 @@ in:
     - { name: cell_d, type: long, pos: A5 }
     - { name: cell_e, type: double, pos: A5 }
     - { name: cell_f, type: timestamp, pos: A7, format: "%Y/%m/%d" }
+    - { name: cell_g, type: boolean, pos: A8 }
+    - { name: cell_h, type: boolean, pos: A9 }
+    - { name: cell_i, type: string, pos: "Sheet2!A1" }
 ```
 
 ```

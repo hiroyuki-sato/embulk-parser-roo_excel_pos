@@ -1,8 +1,13 @@
 module Embulk
   module Parser
     class RooExcelReader
-      def initialize(xlsx)
+      def initialize(xlsx,task)
         @xlsx = xlsx
+        if sheet = task["default_sheet_name"]
+          @default_sheet = sheet
+        else
+          @default_sheet = xlsx.sheets.first
+        end
       end
  
       def read_cell(column)
@@ -24,26 +29,23 @@ module Embulk
         end
       end
 
+      private
       def boolean_column(column)
-	r,c = cell_pos(column['pos'])
-	@xlsx.cell(r,c)
+	get_data(cell_pos(column['pos']))
       end
 
       def long_column(column)
-	r,c = cell_pos(column['pos'])
-	v = @xlsx.cell(r,c)
+	v = get_data(cell_pos(column['pos']))
         v.nil? ? nil : v.to_i
       end
 
       def double_column(column)
-	r,c = cell_pos(column['pos'])
-	v = @xlsx.cell(r,c)
+	v = get_data(cell_pos(column['pos']))
         v.nil? ? nil : v.to_f
       end
 
       def timestamp_column(column)
-	r,c = cell_pos(column['pos'])
-	v = @xlsx.cell(r,c)
+	v = get_data(cell_pos(column['pos']))
         if( v.kind_of?(Date) )
           v.to_time
         elsif ( v.kind_of?(String) )
@@ -55,31 +57,29 @@ module Embulk
       end
  
       def string_column(column)
-	r,c = cell_pos(column['pos'])
-	@xlsx.cell(r,c)
+	get_data(cell_pos(column['pos']))
       end
 
-      private
+      def get_data(cpos)
+        s = cpos['sheet']
+        r = cpos['row']
+        c = cpos['col']
+
+        sheet = @xlsx.sheet(s)
+        raise RuntimeError,"Sheet #{s} not found" unless sheet
+        sheet.cell(r,c)
+      end
+
       def cell_pos(pos)
-	if /(\D+)(\d+)/ =~ pos
-	  pos_col = $1
-	  pos_row = $2.to_i
-	  [pos_col, pos_row]
-	else
+	if /([^!]+)!(\D+)(\d+)/ =~ pos
+          { 'sheet' => $1,'col' => $2, 'row' => $3.to_i }
+	elsif /(\D+)(\d+)/ =~ pos
+          { 'sheet' => @default_sheet,'col' => $1, 'row' => $2.to_i }
+        else
 	  raise RuntimeError,"Invalid pos format"
 	end
       end
 
-      Z_NUM = 25
-      A_CHR = 65
-      def row_str_to_num(pos_col)
-	num = 0
-	pos_col.reverse.scan(/\w/).each_with_index do |c,i|
-	  chr_num = c.ord - A_CHR + 1 
-	  num += Z_NUM * i + chr_num
-	end
-	num
-      end
     end
   end
 end
