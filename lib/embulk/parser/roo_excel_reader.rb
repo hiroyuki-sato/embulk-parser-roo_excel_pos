@@ -24,6 +24,11 @@ module Embulk
         end
       end
 
+      def boolean_column(column)
+	r,c = cell_pos(column['pos'])
+	@xlsx.cell(r,c)
+      end
+
       def long_column(column)
 	r,c = cell_pos(column['pos'])
 	v = @xlsx.cell(r,c)
