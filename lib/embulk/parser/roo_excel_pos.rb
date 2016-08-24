@@ -2,15 +2,6 @@ require 'roo'
 require 'embulk/parser/roo_excel_reader'
 module Embulk
   module Parser
-=begin
-    class RooColumn < Column
-      attr_accessor :position
-      def initialize(idx,name,type,format=nil,pos=nil)
-        super(idx,name,type,format)
-        @pos = pos
-      end
-    end
-=end
 
     class RooExcelPos < ParserPlugin
       Plugin.register_parser("roo_excel_pos", self)
