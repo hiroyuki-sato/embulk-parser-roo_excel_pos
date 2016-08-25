@@ -1,6 +1,6 @@
 # Roo Excel Pos parser plugin for Embulk
 
-Read excel data file form specific position.
+Read excel data file from specific cells.
 
 ## Overview
 
@@ -9,12 +9,18 @@ Read excel data file form specific position.
 
 ## Configuration
 
-- **columns**: olumn definitions (array, required)
+- **columns**: Column definitions (array, required)
   - **name**: Column name (string, default: `"myvalue"`)
   - **type**: Column type (string, `string`,`timestamp`,`long`...)
-  - **pos**: Sheet position (string, `A1`)
+  - **pos**: Cell position (string, `A1`,`Sheet_name!Z1`)
   - **format**: Timestamp format
 - **default_sheet_name**: default sheet name (string, optional)
+
+## Limitation
+
+`Embulk preview` does not work properly if input Excel file is big.
+This is because `embulk preview` read up to 32KB data only.
+http://www.embulk.org/docs/release/release-0.8.10.html
 
 ## Example
 

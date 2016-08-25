@@ -13,6 +13,7 @@ in:
     - { name: cell_g, type: boolean, pos: A8 }
     - { name: cell_h, type: boolean, pos: A9 }
     - { name: cell_i, type: string, pos: "Sheet2!A1" }
+#    default_sheet_name: Sheet3
 
 output:
   type: stdout
